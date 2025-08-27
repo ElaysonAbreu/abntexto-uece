@@ -7,5 +7,5 @@
 
 ## About
 
-This is a unofficial LaTeX class created for Brazilian students to facilitate the use of standards from the Universidade Estadual do Ceará (UECE) in academic works like TCCs, dissertations, theses. Manual: `abntexto.uece.pdf`.
+This is a unofficial LaTeX class created for Brazilian students to facilitate the use of standards from the Universidade Estadual do Ceará (UECE) in academic works like TCCs, dissertations, theses. Manual: `abntexto-uece.pdf`.
 
