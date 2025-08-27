@@ -1,0 +1,97 @@
+%! abntexto-uece.cls
+%! Public Domain Software 2025
+%! 2025-08-27
+%! 1.0
+%! Elayson Abreu
+%! abntexto.classe@gmail.com
+
+% !TeX TS-program = lualatex
+\documentclass{abntexto-uece}
+
+\usepackage{lipsum}
+\usepackage[colorlinks,linktocpage]{hyperref}
+\usepackage[english,brazil]{babel}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+
+\Autor{Fulano de Tal}
+\Universidade{Universidade Estadual do Ceará}
+\SiglaDaInstituicao{SIGLA}
+
+% Estes três são mutuamente exclusivos.
+%\Programa{Programa de Pós-Graduação em Saúde Coletiva}
+%\Faculdade{Faculdade de Filosofia Dom Aureliano Matos}
+\Centro{Centro de Ciências e Tecnologia}
+
+% Estes dois são mutuamente exclusivos.
+%\Especializacao{Especialização em Gestão Pedagógica da Escola Básica}
+%\Curso{Curso de Graduação em Informática Licenciatura a Distância}
+
+\Cidade{Cidade --- Ceará}
+\AnoDeEntrega{Ano de Entrega}
+\Titulo{Um título de exemplo}
+\Subtitulo{um subtítulo}
+\TipoDeTrabalho{Dissertação}
+\DescricaoDoTrabalho{\xTipoDeTrabalho\ apresentada a \xUniversidade\
+                     como cumprimento às exigências legais para obtenção do
+                     título de Mestre.}
+\AreaDeConcentracao{Matemática}
+\Orientador{Dr.\,Nome}
+\Coorientador{Dr.\,Nome}
+\AvaliadorA{
+    Dr.\,Nome \\
+    Faculdade \\
+    Universidade
+}
+\AvaliadorB{
+    Dr.\,Nome \\
+    Faculdade \\
+    Universidade
+}
+\AvaliadorC{
+    Dr.\,Nome \\
+    Faculdade \\
+    Universidade
+}
+\Dedicatoria{Dedico este trabalho a\dots}
+\Epigrafe{Linha de texto}
+\Resumo{brazil}{Parágrafo do Resumo.}
+\Resumo{english}{Paragraph.}
+\PalavrasChave{brazil}{
+    Palavra 1,
+    Palavra 2,
+    Palavra 3,
+    Palavra 4,
+}
+\PalavrasChave{english}{
+    Keyword 1,
+    Keyword 2,
+    Keyword 3,
+    Keyword 4,
+}
+\setmainfont{XITS}[
+    UprightFont    = *-Regular,
+    BoldFont       = *-Bold,
+    ItalicFont     = *-Italic,
+    BoldItalicFont = *-BoldItalic,
+    Extension      = .otf
+]
+\setmathfont{XITSMath-Regular.otf}
+
+\begin{document}
+\ImprimirPretextual
+\nonum\notoc\section{Lista de Figuras}
+\makelof
+\nonum\notoc\section{Sumário}
+\maketoc
+\section{Introdução}
+\lipsum[1]
+\legend{figure}{Um título}\src{Elaboração própria.}
+\begin{place}
+    \includegraphics[width=.3\linewidth]{example-image}
+\end{place}
+\subsection{Uma seção secundária}
+\subsubsection{Uma seção terciária}
+\section{Desenvolvimento}
+\section{Conclusão}
+\end{document}

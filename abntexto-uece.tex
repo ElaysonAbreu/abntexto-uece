@@ -1,0 +1,431 @@
+%! abntexto-uece.cls
+%! Public Domain Software 2025
+%! 2025-08-27
+%! 1.0
+%! Elayson Abreu
+%! abntexto.classe@gmail.com
+
+% !TeX TS-program = lualatex
+\documentclass{abntexto-uece}
+
+\usepackage[brazil,shorthands=off]{babel}
+\usepackage[cmyk]{xcolor}
+\usepackage{lipsum}
+\usepackage[
+    style       = abnt,
+    maxbibnames = 100,
+    extrayear   = true,
+]{biblatex} \addbibresource{abntexto-uece.bib}
+\usepackage{unicode-math}
+\usepackage[colorlinks,linktoc=page]{hyperref}
+\usepackage{microtype}
+\usepackage{fontspec}
+\usepackage{listings}
+\usepackage{lua-widow-control} \clubpenalty=10000\widowpenalty=10000
+
+\makeatletter
+
+% VERBATIM
+% ================================================
+
+\def\adef#1{\catcode`#1=13 \begingroup \lccode`\~=`#1\lowercase{\endgroup\def~}}
+\def\setverb{\def\do##1{\catcode`##1=12}\dospecials\space}
+\def\verbchar#1{%
+    \ifx\savedttchar\undefined\else \catcode\savedttchar=\savedttcharc \fi
+    \chardef\savedttchar=`#1\relax
+    \chardef\savedttcharc=\catcode`#1\relax
+    \adef{#1}{\leavevmode\hbox\bgroup\setverbchar\readverb}%
+    \bgroup\lccode`\~=`#1\lowercase{\egroup\def\readverb ##1~}{##1\egroup}%
+    \catcode`#1=13
+}
+\def\setverbchar{\setverb
+    \adef{ }{\ }%
+    \adef{\{}{\bgroup\normalcolor\char`\{}%
+    \adef{\}}{\char`\}\egroup}%
+    \adef{[}{\bgroup\normalcolor\char`[}%
+    \adef{]}{\char`]\egroup}%
+    \ttfamily
+}
+
+\edef\bslash{\csstring\\}
+\def\mytarget#1{\vbox to0pt{\kern-12pt \hypertarget{#1}{}\vss}}
+\def\1{`}\def\2{``}
+{\catcode`\`=13 \AtBeginDocument{%
+    \verbchar{`}%
+    \def\^`{\bgroup \docpoint}%
+    \def\docpoint#1`{\egroup\leavevmode\edef\tmp{\csstring#1}%
+        \expandafter\parsecn \string#1\relax
+        \ifcsname \cn s/^\tmp\endcsname \else
+            \mytarget{\cn s/^\tmp}\csgdef{\cn s/^\tmp}{}%
+        \fi
+        \hyperlink{\cn s/\tmp}{\color{blue}\ttfamily\if\cn c\bslash\fi\tmp}%
+    }%
+    \def\parsecn #1#2\relax {\edef\cn{\if\bslash#1c\else n\fi}}%
+    \def\`{\bgroup \mainpoint}%
+    \def\mainpoint #1`{\egroup\leavevmode\edef\tmp{\csstring#1}%
+        \expandafter\parsecn \string#1\relax
+        \ifcsname \cn s/\tmp\endcsname \moremainpoints \else
+            \mytarget{\cn s/\tmp}\csgdef{\cn s/\tmp}{}%
+        \fi
+        \ifcsname \cn s/^\tmp\endcsname
+            \hyperlink{\cn s/^\tmp}{\ttfamily\if\cn c\bslash\fi\tmp}\else
+            {\color{red}\ttfamily\string#1}%
+        \fi
+    }%
+    \def\moremainpoints{\errmessage{Second main documentation point \if\cn c\bslash\fi\tmp}}
+}}
+
+\let\lchevron=<
+{\catcode`<=13 \AtBeginDocument{\catcode`<=13
+    \def<#1>{\ifhmode\else\expandafter\hbox\fi\bgroup\normalcolor\ttfamily
+             $\color{gray}\langle$\/{\rmfamily\itshape #1\/}$\color{gray}\rangle$\egroup}}%
+}
+
+\def\type#1{\NoCaseChange{\protect\typeA{#1}}}
+\def\typeA#1{\bgroup\normalshape\ttfamily{\escapechar=-1\relax\expandafter}\detokenize{#1}\egroup}
+% Precisamos de \m@ne aqui, \m@ne=-1.
+\pdfstringdefDisableCommands{%
+    \def\type#1{\bgroup\escapechar\m@ne\expandafter\egroup\detokenize{#1}}%
+    \let\escapechar=\relax
+    \let\m@ne=\relax
+}
+
+\definecolor{P}{RGB}{242, 121, 0}   % Primitivas.
+\definecolor{C}{RGB}{23, 230, 23}   % Comentários.
+\definecolor{B}{RGB}{245, 250, 247} % Fundo.
+
+\lstset{
+    language        = [latex]tex,
+    basicstyle      = \abntsmall\singlesp\ttfamily,
+    texcsstyle      = *\color{P}, % O listings não permite ":"
+    commentstyle    = \color{C},  % no nome dessas cores. Bug.
+    backgroundcolor = \color{B},
+    frame           = leftline,
+    rulecolor       = \color{lightgray},
+    columns         = fullflexible,
+    breaklines      = false,
+    keepspaces      = true,
+    aboveskip       = 0pt plus1.2ex minus.67ex,
+    belowskip       = 0pt plus1.2ex minus.67ex,
+    abovecaptionskip = 0pt,
+    belowcaptionskip = 0pt,
+%    tabsize         = 1, % Sem efeito, porque o documento usa Espaço na tabulação.
+}
+
+% #1 = linewidth
+% #2 = border
+% #3 = padding
+% #4 = padding-top
+% #5 = padding-right
+% #6 = padding-bottom
+% #7 = padding-left
+% #8 = margin-left
+% #9 = margin-right
+\def\mylstset#1#2#3#4#5#6#7#8#9{\lstset{
+    linewidth          = \dimexpr#1 -#2 -#3 -#5\relax,
+    framerule          = \dimexpr#2\relax,
+    framesep           = \dimexpr#3\relax,
+    xleftmargin        = \dimexpr#2 +#3 +#7 +#8\relax,
+    xrightmargin       = \dimexpr#9\relax,
+    framextopmargin    = \dimexpr#4\relax,
+    framexrightmargin  = \dimexpr#5\relax,
+    framexbottommargin = \dimexpr#6\relax,
+    framexleftmargin   = \dimexpr#7\relax,
+}}
+\mylstset{\linewidth}{1pt}{0pt}{0pt}{0pt}{0pt}{0pt}{0pt}{0pt}
+
+\lstnewenvironment{lst}[1][\placepos]{%
+    \let\medskipamount=\smallskipamount
+    \place[#1]\vbox\bgroup
+}{%
+    \egroup\endplace
+}
+\lstnewenvironment{longlst}[1][\placepos]{%
+    \begingroup
+    \processplacearg{#1}%
+    \parskip=0pt \parindent=0pt
+    \initplace
+    \printlegendbox
+    \resetORIlabel \ignorespaces
+}{%
+    \unskip
+    \savedplacewidth=\hsize
+    \printsrcbox
+    \finishplace
+    \resetplace \gresetORIlabel
+    \endgroup
+}
+
+\def\hookXP{}
+\lstnewenvironment{xp}[1][]{%
+    \lstset{
+        frame           = leftline,
+        basicstyle      = \normalsize\ttfamily\singlesp\vskip-\baselineskip,
+        texcsstyle      = \normalcolor,
+        commentstyle    = \normalcolor,
+        backgroundcolor = \color{white},
+        gobble          = 4,
+    }%
+    \mylstset{\linewidth}{0pt}{0pt}{0pt}{0pt}{0pt}{\parindent}{0pt}{0pt}%
+    \expandafter\lstset \expandafter{\hookXP,#1}%
+    \endgraf\null
+}{}
+
+% ETC.
+% ================================================
+
+\setmainfont{XITS}[
+    UprightFont    = *-Regular,
+    BoldFont       = *-Bold,
+    ItalicFont     = *-Italic,
+    BoldItalicFont = *-BoldItalic,
+    Extension      = .otf
+]
+\setmathfont{XITSMath-Regular.otf}
+\setmonofont{InconsolataN}[
+    UprightFont = *-Regular,
+    BoldFont    = *-Bold,
+    Extension   = .otf
+]
+
+\definelegendplace{code}{Código}{loc}
+%\definelegendplace{output}{Saída}{loo}
+%\definelegendplace{scr}{\emph{Screenshot}}{loscr}
+
+\let\over=\@@over
+\AtBeginDocument{\def\refname{Referências}} % Removido \^ da definição.
+\def\hooksection{}
+\AtBeginDocument{\pretocmd\appendix{\clearpage}{}{}}
+\pretocmd\annex{\clearpage}{}{}
+\def\etex{\leavevmode\hbox{$\varepsilon$-\TeX}}
+\def\pdflatex{\leavevmode\hbox{PDF\LaTeX}}
+\def\xelatex{\leavevmode\hbox{Xe\LaTeX}}
+\def\lualatex{\leavevmode\hbox{Lua\LaTeX}}
+\def\me{Elaboração própria.}
+\def\bibfont{\raggedright\interlinepenalty=10000\singlesp\bibitemsep=\baselineskip}
+%\appto\textual{
+%    \def\@evenhead{\abntsmall \firstmarks0\hfil\thepage}
+%    \def\@oddhead {\abntsmall \botmarks1\hfil\thepage}
+%    \def\sectionmark   #1{\marks0{Seção \thesection: \unexpanded{#1}}}
+%    \def\subsectionmark#1{\marks1{Subseção \thesubsection: \unexpanded{#1}}}
+%    \preto\@oddhead {\lower4pt\rlap{\vrule width\hsize height.4pt}}
+%    \preto\@evenhead{\lower4pt\rlap{\vrule width\hsize height.4pt}}
+%}
+%\patchcmd{\eletroniclayout}{false}{true}{}{}
+\let\onesidelayout=\eletroniclayout
+\let\twosidelayout=\eletroniclayout
+\let\Metadados=\relax
+\hypersetup{
+    pdfauthor   = Elayson Abreu,
+    pdftitle    = Classe ABNTexto-UECE: trabalhos
+                  conforme as normas da UECE,
+    pdfsubject  = Manual da classe ABNTexto-UECE,
+    pdfcreator  = LaTeX with abntexto-uece,
+    pdfkeywords = ABNTexto-UECE; LaTeX; Classe; ABNT.
+}
+\makeatother
+
+\begin{document}
+
+\leavevmode\vskip1.9in
+\begingroup \centering \LARGE\sffamily\bfseries
+    Classe ABNTexto-UECE\vskip2em \normalfont\large
+    Elayson Abreu\vskip-3pt
+    \href{mailto:abntexto.classe@gmail.com}%
+                {abntexto.classe@gmail.com}\vskip2ex
+    \today
+\vskip2in\endgroup
+
+\noindent\hfil {\Large\ttfamily 1.0}
+\newpage
+
+\nonum\notoc\section{Sumário}
+\maketoc
+\newpage
+
+\section{Introdução}
+
+Esta classe é destinada aos estudantes da UECE como auxílio na criação de trabalhos acadêmicos: TCCs, dissertações e teses. Ela foi baseada na classe `abntexto.cls` disponível no CTAN: \url{https://ctan.org/pkg/abntexto} e no Guia de Normalização de Trabalhos Acadêmicos da UECE: \url{https://www.uece.br/biblioteca/wp-content/uploads/sites/27/2024/09/GUIA-UECE-2024-Atualizado-1.pdf}, 5ª edição, V1, 2024.
+
+Exemplo de uso desta classe disponível no arquivo `abntexto-uece-exemplo.tex` (Código~\ref{cd:ex}):
+
+\legend{code}{Exemplo de uso} \label{cd:ex}
+\src\me
+\begin{longlst}
+    % !TeX TS-program = lualatex
+    \documentclass{abntexto-uece}
+
+    \usepackage{hyperref}
+    \usepackage[english,brazil]{babel}
+    \usepackage{fontspec}
+    \usepackage{unicode-math}
+
+    \Autor{Fulano de Tal}
+    \Universidade{Universidade Estadual do Ceará}
+    \SiglaDaInstituicao{SIGLA}
+
+    % Estes três são mutuamente exclusivos.
+    %\Programa{Programa de Pós-Graduação em Saúde Coletiva}
+    %\Faculdade{Faculdade de Filosofia Dom Aureliano Matos}
+    \Centro{Centro de Ciências e Tecnologia}
+
+    % Estes dois são mutuamente exclusivos.
+    %\Especializacao{Especialização em Gestão Pedagógica da Escola Básica}
+    \Curso{Curso de Graduação em Informática Licenciatura a Distância}
+
+    \Cidade{Cidade --- Ceará}
+    \AnoDeEntrega{Ano de Entrega}
+    \Titulo{Um título de exemplo}
+    \Subtitulo{um subtítulo}
+    \TipoDeTrabalho{Dissertação}
+    \DescricaoDoTrabalho{\xTipoDeTrabalho\ apresentada a \xUniversidade\
+                         como cumprimento às exigências legais para obtenção do
+                         título de Mestre.}
+    \AreaDeConcentracao{Matemática}
+    \Orientador{Dr.\,Nome}
+    \Coorientador{Dr.\,Nome}
+    \AvaliadorA{
+        Dr.\,Nome \\
+        Faculdade \\
+        Universidade
+    }
+    \AvaliadorB{
+        Dr.\,Nome \\
+        Faculdade \\
+        Universidade
+    }
+    \AvaliadorC{
+        Dr.\,Nome \\
+        Faculdade \\
+        Universidade
+    }
+    \Dedicatoria{Dedico este trabalho a\dots}
+    \Epigrafe{Linha de texto}
+    \Resumo{brazil}{Parágrafo do Resumo.}
+    \Resumo{english}{Paragraph.}
+    \PalavrasChave{brazil}{
+        Palavra 1,
+        Palavra 2,
+        Palavra 3,
+        Palavra 4,
+    }
+    \PalavrasChave{english}{
+        Keyword 1,
+        Keyword 2,
+        Keyword 3,
+        Keyword 4,
+    }
+
+    \setmainfont{XITS}[
+        UprightFont    = *-Regular,
+        BoldFont       = *-Bold,
+        ItalicFont     = *-Italic,
+        BoldItalicFont = *-BoldItalic,
+        Extension      = .otf
+    ]
+    \setmathfont{XITSMath-Regular.otf}
+
+    \begin{document}
+        \ImprimirPretextual
+        \nonum\notoc\section{Lista de Figuras}
+        \makelof
+        \nonum\notoc\section{Sumário}
+        \maketoc
+        \section{Introdução}
+        \lipsum[1]
+        \legend{figure}{Um título}\src{Elaboração própria.}
+        \begin{place}
+            \includegraphics[width=.3\linewidth]{example-image}
+        \end{place}
+        \subsection{Uma seção secundária}
+        \subsubsection{Uma seção terciária}
+        \section{Desenvolvimento}
+        \section{Conclusão}
+    \end{document}
+\end{longlst}
+
+% MACROS PARA O CÓDIGO-FONTE
+% ================================================
+
+\pdfstringdefDisableCommands{\def\marks#1#2{}}
+\appendix{\marks0{}\marks1{}Código-fonte\label{ap:codigo-fonte}}
+
+\makeatletter
+\newcounter{codesection}
+\newcounter{codesubsection}[codesection]
+\let\c@section=\c@codesection
+\let\c@subsection=\c@codesubsection
+\def\thecodesection{\arabic{codesection}}
+\def\thecodesubsection{\thecodesection.\arabic{codesubsection}}
+\edef\toclevel@codesection{\mainseclevel}
+\edef\toclevel@codesubsection{\the\numexpr\mainseclevel-1\relax}
+
+\appto\hooktocsection{\def\extleaders{}%
+    \edef\savedskips{\rightskip=\the\rightskip \parfillskip=\the\parfillskip\relax}}
+\appto\hooktocsubsection{\def\extleaders{}%
+    \edef\savedskips{\rightskip=\the\rightskip \parfillskip=\the\parfillskip\relax}}
+\appto\hookextline{\savedskips}
+
+\def\toclabelbox{\lowercase{\eqbox{codetoc}}}
+\def\tocsectionfont{\itshape\MakeUppercase}
+\def\tocsubsectionfont{}
+\def\sectionfont{\tocsectionfont}
+\def\subsectionfont{\itshape}
+
+% O \addcontentsline{#1}{#2}{#3} está programado para
+% enviar marcadores apenas se #1 = toc. Podemos
+% mudar isso com \hypersetup{bookmarkstype=<outro>}.
+\hypersetup{bookmarkstype=codetoc}
+\patchcmd{\targetsection}{\refstepcounter{section}}{\refstepcounter{codesection}}{}{}
+\patchcmd{\targetsection}{\addcontentsline{toc}}{\addcontentsline{codetoc}}{}{}
+\patchcmd{\targetsubsection}{\refstepcounter{subsection}}{\refstepcounter{codesubsection}}{}{}
+\patchcmd{\targetsubsection}{\addcontentsline{toc}}{\addcontentsline{codetoc}}{}{}
+
+\def\hooksection{}
+\def\codesection{\section}
+\def\codesubsection{\subsection}
+
+\colorlet{C}{.}
+\definecolor{tmp}{RGB}{128, 0, 32}    \colorlet{P}{tmp}
+\definecolor{tmp}{RGB}{255, 228, 236} \colorlet{B}{tmp}
+
+\expanded{\noexpand\lstdefinelanguage{mylang}{
+    language    = [latex]tex,
+    texcs       = {\directlua{for k,v in pairs(tex.primitives())
+                   do tex.print(k, v.. ',')end}},
+    deletetexcs = {end}
+}}
+
+\lstset{
+    language    = mylang,
+    frame       = single,
+    numbers     = left,
+    numbersep   = \dimexpr-5pt+\addnumbersep\relax,
+    numberstyle = \fontsize{8bp}{9bp}\selectfont,
+    literate    = {\^^M\%.}{}1,
+}
+\def\addnumbersep{9pt}
+\mylstset{\linewidth}{0pt}{0pt}{3pt}{0pt}{3pt}{13pt+\addnumbersep}{0pt}{0pt}
+
+\newcount\codecount \codecount=1
+\newbox\mybox
+\setbox\mybox=\hbox to\hsize{\hfil\abntsmall\ttfamily\bfseries\color{gray}abntexto-uece.cls}
+\lstnewenvironment{code}[1][]{%
+    \lstset{
+        title       = \copy\mybox\nobreak,
+        firstnumber = \codecount,
+        #1
+    }%
+}{%
+    \global\codecount=\value{lstnumber}\relax
+}
+\appto\hookXP{
+    frame     = none,
+    numbers   = none,
+    numbersep = 0pt,
+    gobble    = 4,
+}
+\parskip=0pt plus.2ex minus.1ex
+\@starttoc{codetoc}
+{\def\excl{!}\catcode\1\!=14 \catcode\1\%=9 \input{abntexto-uece.cls}}
+\end{document}
